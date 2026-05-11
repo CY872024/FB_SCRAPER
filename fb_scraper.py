@@ -71,7 +71,7 @@ def save_task_state(uid, task_name, run_time, seen_urls):
 # Email 設定
 # ==========================================
 def load_email_config():
-    sender = os.environ.get("GMAIL_SENDER", "lcy872024@gmail.com")
+    sender = os.environ.get("GMAIL_SENDER")
     pwd = os.environ.get("GMAIL_APP_PASSWORD")
     if not pwd:
         return None
