@@ -209,6 +209,12 @@
                 document.getElementById('btn-admin').classList.add('hidden');
             }
             
+            // 確保資料庫有這個使用者的記錄 (供後台統計)
+            setDoc(doc(db, "users", user.uid), { 
+                email: user.email, 
+                last_login: new Date().toISOString() 
+            }, { merge: true });
+            
             loadUserData();
         } else {
             currentUser = null;
@@ -498,19 +504,15 @@
                 const data = docSnap.data();
                 const tasks = data.tasks || [];
                 
-                if (tasks.length > 0) {
-                    totalUsers++;
-                    totalTasks += tasks.length;
-                    
-                    // 從 task 中找出可能的主人 email (找第一個任務的收件人當代表)
-                    let guessEmail = '未知信箱 (' + uid.substring(0,6) + '...)';
-                    if (tasks[0].recipients && tasks[0].recipients.length > 0) {
-                        guessEmail = tasks[0].recipients[0];
-                    }
+                totalUsers++;
+                totalTasks += tasks.length;
+                
+                let guessEmail = data.email || '未知信箱 (' + uid.substring(0,6) + '...)';
 
-                    html += `<div class="admin-user-card">`;
-                    html += `<h3 style="margin:0 0 10px 0; font-size:16px;">👤 ${guessEmail} <span class="badge" style="float:right;">${tasks.length} 個任務</span></h3>`;
-                    
+                html += `<div class="admin-user-card">`;
+                html += `<h3 style="margin:0 0 10px 0; font-size:16px;">👤 ${guessEmail} <span class="badge" style="float:right;">${tasks.length} 個任務</span></h3>`;
+                
+                if (tasks.length > 0) {
                     tasks.forEach((t, i) => {
                         const typeMap = { 'interval': '即時', 'daily': '每天', 'weekly': '每週', 'monthly': '每月' };
                         const ttype = (t.schedule && t.schedule.type) ? typeMap[t.schedule.type] : '每週';
@@ -518,9 +520,11 @@
                         html += `<strong>[${ttype}] ${t.task_name}</strong> - 關鍵字: ${(t.keywords||[]).join(', ')}`;
                         html += `</div>`;
                     });
-                    
-                    html += `</div>`;
+                } else {
+                    html += `<div style="color:var(--text-muted); font-size:13px;">(尚未設定任何任務)</div>`;
                 }
+                
+                html += `</div>`;
             });
 
             document.getElementById('stat-users').innerText = totalUsers;
