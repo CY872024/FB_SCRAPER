@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.csv
+.env
+temp_output.txt
+fb_scraper.backup.py
+config.backup.json
+implementation_plan.md
+task.md

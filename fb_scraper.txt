@@ -1,0 +1,11 @@
+
+請生成python程式 可以讀取以下FB粉絲專頁於昨天發布的貼文 篩選跟活動報名相關的貼文 整理出列表(包含標題,摘要,貼文網址)
+
+國立故宮博物院 National Palace Museum
+https://www.facebook.com/npmgov
+
+桃園好農
+https://www.facebook.com/AgricultureInTaoyuan
+
+新北旅客
+https://www.facebook.com/ntctour

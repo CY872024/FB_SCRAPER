@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FB Scraper 控制台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            box-shadow: none;
+            margin-top: 10px;
+        }
+        button.success {
+            background: var(--success);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .task-list {
+            margin-top: 20px;
+        }
+        .task-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        .task-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+        .task-info p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+        textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 13px;
+            font-family: monospace;
+            min-height: 200px;
+            outline: none;
+            resize: vertical;
+        }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .status-msg { margin-top: 15px; font-size: 14px; text-align: center; color: var(--success); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 FB Scraper Console</h1>
+
+    <!-- 登入區塊 -->
+    <div id="login-section" class="card">
+        <div class="form-group">
+            <label>GitHub 使用者名稱 / 組織</label>
+            <input type="text" id="gh-owner" placeholder="例如: CY872024" value="CY872024">
+        </div>
+        <div class="form-group">
+            <label>儲存庫名稱 (Repository)</label>
+            <input type="text" id="gh-repo" placeholder="例如: FB_SCRAPER" value="FB_SCRAPER">
+        </div>
+        <div class="form-group">
+            <label>Personal Access Token (PAT)</label>
+            <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+        </div>
+        <button onclick="saveLogin()">連線至 GitHub</button>
+    </div>
+
+    <!-- 儀表板區塊 -->
+    <div id="dashboard-section" class="hidden">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 18px;">排程任務列表</h2>
+                <button onclick="loadConfig()" style="width: auto; padding: 8px 15px; font-size: 12px;">重新整理</button>
+            </div>
+            <div id="task-list-container" class="task-list">
+                <div style="text-align: center;"><span class="loader"></span> 載入中...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin: 0 0 15px 0; font-size: 18px;">手動控制</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">強制雲端主機立刻啟動，無視排程時間執行所有任務並寄出信件。</p>
+            <button class="success" onclick="triggerAction()">🚀 立即強制執行</button>
+            <div id="action-status" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 18px;">進階設定 (JSON)</h2>
+            </div>
+            <textarea id="config-editor"></textarea>
+            <button onclick="saveConfig()" style="margin-top: 15px;">💾 儲存設定至 GitHub</button>
+            <div id="save-status" class="status-msg"></div>
+            <button class="danger" onclick="logout()">登出</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentConfigSha = null;
+
+    window.onload = () => {
+        if (localStorage.getItem('gh_token')) {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            loadConfig();
+        }
+    };
+
+    function saveLogin() {
+        const owner = document.getElementById('gh-owner').value.trim();
+        const repo = document.getElementById('gh-repo').value.trim();
+        const token = document.getElementById('gh-token').value.trim();
+        
+        if (!owner || !repo || !token) {
+            alert('請填寫完整資訊！');
+            return;
+        }
+        
+        localStorage.setItem('gh_owner', owner);
+        localStorage.setItem('gh_repo', repo);
+        localStorage.setItem('gh_token', token);
+        
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.remove('hidden');
+        loadConfig();
+    }
+
+    function logout() {
+        localStorage.clear();
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('login-section').classList.remove('hidden');
+    }
+
+    async function githubRequest(method, path, body = null) {
+        const owner = localStorage.getItem('gh_owner');
+        const repo = localStorage.getItem('gh_repo');
+        const token = localStorage.getItem('gh_token');
+        
+        const url = path.startsWith('https') ? path : `https://api.github.com/repos/${owner}/${repo}${path}`;
+        const headers = {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        };
+        
+        const config = { method, headers };
+        if (body) config.body = JSON.stringify(body);
+        
+        const res = await fetch(url, config);
+        if (!res.ok) {
+            if (res.status === 401 || res.status === 404) {
+                alert('驗證失敗或找不到儲存庫！請確認 Token 是否有效且包含 repo 權限。');
+                logout();
+            }
+            throw new Error(`GitHub API Error: ${res.status}`);
+        }
+        return res.status !== 204 ? await res.json() : null;
+    }
+
+    const DAYS = ['一', '二', '三', '四', '五', '六', '日'];
+
+    async function loadConfig() {
+        try {
+            document.getElementById('task-list-container').innerHTML = '<div style="text-align: center;"><span class="loader"></span> 載入中...</div>';
+            
+            const data = await githubRequest('GET', '/contents/config.json');
+            currentConfigSha = data.sha;
+            
+            const content = decodeURIComponent(escape(atob(data.content)));
+            document.getElementById('config-editor').value = content;
+            
+            const configObj = JSON.parse(content);
+            renderTasks(configObj.tasks || []);
+        } catch (e) {
+            document.getElementById('task-list-container').innerHTML = `<div style="color:#ef4444;text-align:center;">載入失敗，請確認設定檔存在。</div>`;
+        }
+    }
+
+    function renderTasks(tasks) {
+        const container = document.getElementById('task-list-container');
+        container.innerHTML = '';
+        
+        if (tasks.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #94a3b8;">目前沒有任務</div>';
+            return;
+        }
+
+        tasks.forEach(t => {
+            const daysText = (t.schedule.days_of_week || []).map(d => '週' + DAYS[d]).join(', ');
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <div class="task-info">
+                    <h3>${t.task_name}</h3>
+                    <p>🕒 排程: ${daysText} ${t.schedule.time}</p>
+                    <p style="margin-top:5px;">
+                        <span class="badge">${t.pages ? t.pages.length : 0} 個粉專</span>
+                        <span class="badge">${t.keywords ? t.keywords.length : 0} 個關鍵字</span>
+                    </p>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    async function saveConfig() {
+        const status = document.getElementById('save-status');
+        const content = document.getElementById('config-editor').value;
+        
+        try {
+            JSON.parse(content); // Validate JSON
+        } catch (e) {
+            status.style.color = '#ef4444';
+            status.innerText = '儲存失敗：JSON 格式不正確！';
+            return;
+        }
+
+        try {
+            status.style.color = '#3b82f6';
+            status.innerText = '儲存中...';
+            
+            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+            
+            const res = await githubRequest('PUT', '/contents/config.json', {
+                message: 'Update config via Web App',
+                content: encodedContent,
+                sha: currentConfigSha
+            });
+            
+            currentConfigSha = res.content.sha;
+            status.style.color = '#22c55e';
+            status.innerText = '✅ 設定檔已成功儲存至 GitHub！';
+            
+            // Reload UI
+            renderTasks(JSON.parse(content).tasks || []);
+            
+            setTimeout(() => { status.innerText = ''; }, 3000);
+        } catch (e) {
+            status.style.color = '#ef4444';
+            status.innerText = '儲存失敗，請重試。';
+        }
+    }
+
+    async function triggerAction() {
+        const status = document.getElementById('action-status');
+        if (!confirm('這將會立即觸發雲端主機啟動所有爬蟲任務，確定要執行嗎？')) return;
+        
+        try {
+            status.style.color = '#3b82f6';
+            status.innerText = '正在呼叫主機...';
+            
+            await githubRequest('POST', '/actions/workflows/scraper.yml/dispatches', {
+                ref: 'main',
+                inputs: { run_all: 'true' }
+            });
+            
+            status.style.color = '#22c55e';
+            status.innerText = '✅ 指令已發送！雲端主機即將啟動 (約需等待 1-2 分鐘)。';
+        } catch (e) {
+            status.style.color = '#ef4444';
+            status.innerText = '觸發失敗，請確認 Action 是否已存在且 Token 權限正確。';
+        }
+    }
+</script>
+
+</body>
+</html>

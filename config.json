@@ -1,0 +1,145 @@
+{
+    "email": {
+        "enabled": true,
+        "smtp_host": "smtp.gmail.com",
+        "smtp_port": 587,
+        "sender": "chiyuanli@gmail.com",
+        "app_password": "qrqv zxta ipwb uyws"
+    },
+    "tasks": [
+        {
+            "task_name": "國立故宮博物館",
+            "schedule": {
+                "days_of_week": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ],
+                "time": "09:00"
+            },
+            "recipients": [
+                "chiyuanli@gmail.com",
+                "your_friend@gmail.com",
+                "boss@company.com"
+            ],
+            "keywords": [
+                "報名",
+                "活動",
+                "報名表",
+                "登記",
+                "參加",
+                "名額",
+                "抽獎",
+                "體驗",
+                "工作坊",
+                "講座",
+                "課程",
+                "導覽",
+                "免費參加",
+                "線上報名",
+                "現場報名",
+                "額滿",
+                "截止",
+                "開放報名",
+                "立即報名",
+                "手刀報名",
+                "限量",
+                "場次",
+                "sign up",
+                "register",
+                "registration",
+                "event"
+            ],
+            "pages": [
+                {
+                    "name": "國立故宮博物院",
+                    "url": "https://www.facebook.com/npmgov"
+                }
+            ]
+        },
+        {
+            "task_name": "公家機關與展覽",
+            "schedule": {
+                "days_of_week": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ],
+                "time": "18:00"
+            },
+            "recipients": [
+                "chiyuanli@gmail.com",
+                "your_friend@gmail.com",
+                "boss@company.com"
+            ],
+            "keywords": [
+                "報名",
+                "活動",
+                "免費參加",
+                "線上報名",
+                "現場報名"
+            ],
+            "pages": [
+                {
+                    "name": "科教館GO好玩",
+                    "url": "https://www.facebook.com/ntsec"
+                },
+                {
+                    "name": "國立臺灣博物館",
+                    "url": "https://www.facebook.com/NTMuseum"
+                }
+            ]
+        },
+        {
+            "task_name": "新北農水活動",
+            "schedule": {
+                "days_of_week": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ],
+                "time": "12:00"
+            },
+            "recipients": [
+                "chiyuanli@gmail.com",
+                "your_friend@gmail.com",
+                "boss@company.com"
+            ],
+            "keywords": [
+                "報名",
+                "體驗",
+                "免費參加"
+            ],
+            "pages": [
+                {
+                    "name": "桃園好農",
+                    "url": "https://www.facebook.com/AgricultureInTaoyuan"
+                },
+                {
+                    "name": "新北旅客",
+                    "url": "https://www.facebook.com/ntctour"
+                },
+                {
+                    "name": "新北水漾【新北水利局】",
+                    "url": "https://www.facebook.com/waternewtaipei"
+                },
+                {
+                    "name": "新北市農業局-稼日蒔光",
+                    "url": "https://www.facebook.com/agr.ntpc"
+                }
+            ]
+        }
+    ]
+}
