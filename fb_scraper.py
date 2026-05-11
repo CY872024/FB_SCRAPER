@@ -310,7 +310,9 @@ def run_github_cron(force_all=False):
     global db
     db = init_firebase()
     
-    now = datetime.now()
+    from datetime import timezone, timedelta
+    tz_taipei = timezone(timedelta(hours=8))
+    now = datetime.now(tz_taipei)
     current_day = now.weekday()
     current_hour = now.hour
     

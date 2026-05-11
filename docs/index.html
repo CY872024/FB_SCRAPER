@@ -322,6 +322,18 @@
                 monthHtml += `<label style="width:35px; display:inline-block;"><input type="checkbox" class="task-month-${index}" value="${i}" ${checked}>${i}</label>`;
             }
 
+            const [curH, curM] = (sch.time || '12:00').split(':');
+            let hourHtml = '';
+            for(let h=0; h<24; h++) {
+                let hh = h.toString().padStart(2, '0');
+                hourHtml += `<option value="${hh}" ${hh===curH?'selected':''}>${hh}</option>`;
+            }
+            let minuteHtml = '';
+            for(let m=0; m<60; m++) {
+                let mm = m.toString().padStart(2, '0');
+                minuteHtml += `<option value="${mm}" ${mm===curM?'selected':''}>${mm}</option>`;
+            }
+
             let pagesHtml = '';
             (task.pages || []).forEach(p => {
                 pagesHtml += `<div class="page-entry"><input type="text" class="p-name" placeholder="粉專名稱" value="${p.name}"><input type="text" class="p-url" placeholder="粉專網址" value="${p.url}"></div>`;
@@ -362,8 +374,16 @@
                 </div>
 
                 <div id="ui-time-${index}" class="form-group" style="display:${stype==='interval'?'none':'block'};">
-                    <label>執行時間 (HH:MM)</label>
-                    <input type="time" id="t-time-${index}" value="${sch.time || '12:00'}">
+                    <label>執行時間 (時 : 分)</label>
+                    <div style="display:flex; gap:10px;">
+                        <select id="t-hour-${index}" style="flex:1; padding:10px; border-radius:8px; background:rgba(15,23,42,0.6); color:white; border:1px solid var(--border);">
+                            ${hourHtml}
+                        </select>
+                        <span style="display:flex; align-items:center; font-weight:bold;">:</span>
+                        <select id="t-minute-${index}" style="flex:1; padding:10px; border-radius:8px; background:rgba(15,23,42,0.6); color:white; border:1px solid var(--border);">
+                            ${minuteHtml}
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -430,7 +450,9 @@
 
             const name = document.getElementById(`t-name-${i}`).value.trim();
             const type = document.getElementById(`t-type-${i}`).value;
-            const time = document.getElementById(`t-time-${i}`).value;
+            const hour = document.getElementById(`t-hour-${i}`).value;
+            const minute = document.getElementById(`t-minute-${i}`).value;
+            const time = `${hour}:${minute}`;
             const interval_minutes = parseInt(document.getElementById(`t-interval-${i}`).value) || 15;
             
             const daysNode = document.querySelectorAll(`.task-days-${i}:checked`);
