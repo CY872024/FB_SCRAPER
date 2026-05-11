@@ -325,25 +325,54 @@ def run_github_cron(force_all=False):
             continue
             
         schedule = task.get("schedule", {})
-        days = schedule.get("days_of_week", [])
-        time_str = schedule.get("time", "")
+        stype = schedule.get("type", "weekly") # 預設相容舊版為 weekly
         
-        try:
-            task_hour = int(time_str.split(":")[0])
-        except:
-            continue
-            
-        if current_day in days and current_hour == task_hour:
-            uid = task.get("uid")
-            task_name = task.get("task_name")
-            task_state = get_task_state(uid, task_name)
-            last_run = task_state.get("last_run_time", "")
-            
-            # 如果今天同一個小時已經跑過，防呆跳過
-            current_hour_prefix = now.strftime("%Y-%m-%dT%H")
-            if last_run.startswith(current_hour_prefix):
+        uid = task.get("uid")
+        task_name = task.get("task_name")
+        task_state = get_task_state(uid, task_name)
+        last_run_str = task_state.get("last_run_time", "")
+        
+        # 檢查今天是否已經跑過 (適用於 daily, weekly, monthly)
+        today_prefix = now.strftime("%Y-%m-%d")
+        run_today = last_run_str.startswith(today_prefix)
+        
+        should_run = False
+        
+        if stype == "interval":
+            interval_mins = int(schedule.get("interval_minutes", 15))
+            mins_since = get_minutes_since_last_run(task_state)
+            if mins_since is None or mins_since >= (interval_mins - 5): # 容許 5 分鐘誤差
+                should_run = True
+                
+        else:
+            # daily, weekly, monthly 皆需要判斷時間
+            time_str = schedule.get("time", "00:00")
+            try:
+                task_h, task_m = map(int, time_str.split(":"))
+                # 如果還沒到設定時間，就不跑
+                if now.hour < task_h or (now.hour == task_h and now.minute < task_m):
+                    continue
+            except:
                 continue
                 
+            # 如果今天已經跑過，就不跑
+            if run_today:
+                continue
+                
+            if stype == "daily":
+                should_run = True
+                
+            elif stype == "weekly":
+                days = schedule.get("days_of_week", [])
+                if current_day in days:
+                    should_run = True
+                    
+            elif stype == "monthly":
+                days_m = schedule.get("days_of_month", [])
+                if now.day in days_m:
+                    should_run = True
+
+        if should_run:
             tasks_to_run.append(task)
 
     if not tasks_to_run:

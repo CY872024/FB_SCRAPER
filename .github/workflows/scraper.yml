@@ -2,7 +2,7 @@ name: FB Scraper SaaS Engine
 
 on:
   schedule:
-    - cron: '0 * * * *' # 每天每小時的 0 分執行 (UTC 時間)
+    - cron: '*/15 * * * *' # 每 15 分鐘執行一次
   workflow_dispatch:
     inputs:
       run_all:

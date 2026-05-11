@@ -69,6 +69,10 @@
         }
         .page-entry { display: flex; gap: 10px; margin-bottom: 10px; }
         .page-entry input { flex: 1; }
+        .stat-box { background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; border-radius: 8px; padding: 15px; text-align: center; flex: 1; }
+        .stat-box h4 { margin: 0 0 5px 0; color: #a78bfa; font-size: 14px; }
+        .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: white; }
+        .admin-user-card { background: rgba(0,0,0,0.2); border-left: 4px solid #8b5cf6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -117,7 +121,10 @@
                 <span style="color:var(--text-muted); font-size:14px;">目前登入：</span>
                 <strong id="user-email"></strong>
             </div>
-            <button class="btn-sm btn-danger" onclick="handleLogout()">登出</button>
+            <div style="display:flex; gap:10px;">
+                <button id="btn-admin" class="btn-sm hidden" style="background:#8b5cf6;" onclick="showAdminPanel()">👑 後台</button>
+                <button class="btn-sm btn-danger" onclick="handleLogout()">登出</button>
+            </div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
@@ -132,13 +139,36 @@
         <button onclick="saveAllTasksToFirestore()" style="margin-top: 20px; font-size:18px;">💾 儲存所有變更</button>
         <div id="save-status" class="status-msg"></div>
     </div>
+
+    <!-- 管理員後台區塊 -->
+    <div id="admin-section" class="hidden">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="margin:0; color:#a78bfa;">👑 系統總覽 (上帝視角)</h2>
+                <button class="btn-sm" style="background:rgba(255,255,255,0.1);" onclick="hideAdminPanel()">返回儀表板</button>
+            </div>
+            <div style="display:flex; gap:15px; margin-bottom: 20px;">
+                <div class="stat-box">
+                    <h4>總註冊會員數</h4>
+                    <p id="stat-users">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>全站任務總數</h4>
+                    <p id="stat-tasks">0</p>
+                </div>
+            </div>
+            <div id="admin-list-container">
+                <div style="text-align: center;"><span class="loader"></span> 載入中...</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Firebase SDKs -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
     // 填入使用者提供的 Firebase Config
     const firebaseConfig = {
@@ -155,6 +185,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // 管理員名單 (可自由新增信箱)
+    const ADMIN_EMAILS = ["lcy872024@gmail.com"];
+
     let currentUser = null;
     let currentTasks = [];
 
@@ -166,7 +199,16 @@
             currentUser = user;
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('admin-section').classList.add('hidden');
             document.getElementById('user-email').innerText = user.email;
+            
+            // 判斷是否顯示管理員按鈕
+            if (ADMIN_EMAILS.includes(user.email)) {
+                document.getElementById('btn-admin').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-admin').classList.add('hidden');
+            }
+            
             loadUserData();
         } else {
             currentUser = null;
@@ -258,10 +300,20 @@
             const taskDiv = document.createElement('div');
             taskDiv.className = 'task-item';
             
+            const sch = task.schedule || { type: 'weekly', days_of_week: [0,1,2,3,4,5,6], time: '12:00' };
+            const stype = sch.type || 'weekly';
+
             let daysHtml = '';
             for (let i = 0; i < 7; i++) {
-                const checked = (task.schedule?.days_of_week || []).includes(i) ? 'checked' : '';
+                const checked = (sch.days_of_week || []).includes(i) ? 'checked' : '';
                 daysHtml += `<label><input type="checkbox" class="task-days-${index}" value="${i}" ${checked}> ${DAYS[i]}</label>`;
+            }
+
+            let monthHtml = '';
+            const dom = sch.days_of_month || [1];
+            for (let i = 1; i <= 31; i++) {
+                const checked = dom.includes(i) ? 'checked' : '';
+                monthHtml += `<label style="width:35px; display:inline-block;"><input type="checkbox" class="task-month-${index}" value="${i}" ${checked}>${i}</label>`;
             }
 
             let pagesHtml = '';
@@ -276,13 +328,33 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>執行星期</label>
+                    <label>排程類型</label>
+                    <select id="t-type-${index}" style="width:100%; padding:10px; border-radius:8px; background:rgba(15,23,42,0.6); color:white; border:1px solid var(--border);" onchange="toggleScheduleUI(${index})">
+                        <option value="interval" ${stype==='interval'?'selected':''}>🚀 即時監控 (每 X 分鐘)</option>
+                        <option value="daily" ${stype==='daily'?'selected':''}>📅 每天定時</option>
+                        <option value="weekly" ${stype==='weekly'?'selected':''}>📆 每週定時</option>
+                        <option value="monthly" ${stype==='monthly'?'selected':''}>🈷️ 每月定時</option>
+                    </select>
+                </div>
+
+                <div id="ui-interval-${index}" class="form-group" style="display:${stype==='interval'?'block':'none'};">
+                    <label>每隔幾分鐘執行一次？</label>
+                    <input type="number" id="t-interval-${index}" value="${sch.interval_minutes || 15}" min="15" style="width:100%; padding:10px; background:rgba(15,23,42,0.6); color:white; border:1px solid var(--border); border-radius:8px;">
+                </div>
+
+                <div id="ui-weekly-${index}" class="form-group" style="display:${stype==='weekly'?'block':'none'};">
+                    <label>執行星期 (可複選)</label>
                     <div class="days-checkboxes">${daysHtml}</div>
                 </div>
-                
-                <div class="form-group">
+
+                <div id="ui-monthly-${index}" class="form-group" style="display:${stype==='monthly'?'block':'none'};">
+                    <label>執行日期 (可複選)</label>
+                    <div class="days-checkboxes">${monthHtml}</div>
+                </div>
+
+                <div id="ui-time-${index}" class="form-group" style="display:${stype==='interval'?'none':'block'};">
                     <label>執行時間 (HH:MM)</label>
-                    <input type="time" id="t-time-${index}" value="${task.schedule?.time || '12:00'}">
+                    <input type="time" id="t-time-${index}" value="${sch.time || '12:00'}">
                 </div>
 
                 <div class="form-group">
@@ -305,10 +377,18 @@
         });
     }
 
+    window.toggleScheduleUI = (index) => {
+        const type = document.getElementById(`t-type-${index}`).value;
+        document.getElementById(`ui-interval-${index}`).style.display = type === 'interval' ? 'block' : 'none';
+        document.getElementById(`ui-weekly-${index}`).style.display = type === 'weekly' ? 'block' : 'none';
+        document.getElementById(`ui-monthly-${index}`).style.display = type === 'monthly' ? 'block' : 'none';
+        document.getElementById(`ui-time-${index}`).style.display = type === 'interval' ? 'none' : 'block';
+    };
+
     window.addNewTaskUI = () => {
         currentTasks.push({
             task_name: "新任務",
-            schedule: { days_of_week: [0,1,2,3,4,5,6], time: "09:00" },
+            schedule: { type: "weekly", days_of_week: [0,1,2,3,4,5,6], time: "09:00", interval_minutes: 15, days_of_month: [1] },
             recipients: [currentUser.email],
             keywords: ["報名", "活動"],
             pages: [{ name: "", url: "" }]
@@ -337,13 +417,18 @@
         // 從 UI 收集所有資料
         const newTasks = [];
         for (let i = 0; i < currentTasks.length; i++) {
-            if(!document.getElementById(`t-name-${i}`)) continue; // 可能被刪除但尚未 re-render
+            if(!document.getElementById(`t-name-${i}`)) continue;
 
             const name = document.getElementById(`t-name-${i}`).value.trim();
+            const type = document.getElementById(`t-type-${i}`).value;
             const time = document.getElementById(`t-time-${i}`).value;
+            const interval_minutes = parseInt(document.getElementById(`t-interval-${i}`).value) || 15;
             
             const daysNode = document.querySelectorAll(`.task-days-${i}:checked`);
             const days_of_week = Array.from(daysNode).map(cb => parseInt(cb.value));
+
+            const monthNode = document.querySelectorAll(`.task-month-${i}:checked`);
+            const days_of_month = Array.from(monthNode).map(cb => parseInt(cb.value));
 
             const recptRaw = document.getElementById(`t-recipients-${i}`).value;
             const recipients = recptRaw.split(',').map(s => s.trim()).filter(s => s);
@@ -361,7 +446,7 @@
 
             newTasks.push({
                 task_name: name,
-                schedule: { days_of_week, time },
+                schedule: { type, time, interval_minutes, days_of_week, days_of_month },
                 recipients, keywords, pages
             });
         }
@@ -383,6 +468,74 @@
             status.innerText = '儲存失敗：' + e.message;
         }
     };
+
+    // =====================================
+    // 管理員後台邏輯
+    // =====================================
+    window.showAdminPanel = () => {
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('admin-section').classList.remove('hidden');
+        loadAllUsersData();
+    };
+
+    window.hideAdminPanel = () => {
+        document.getElementById('admin-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.remove('hidden');
+    };
+
+    async function loadAllUsersData() {
+        const container = document.getElementById('admin-list-container');
+        container.innerHTML = '<div style="text-align: center;"><span class="loader"></span> 全站掃描中...</div>';
+        
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            let totalUsers = 0;
+            let totalTasks = 0;
+            let html = '';
+
+            querySnapshot.forEach((docSnap) => {
+                const uid = docSnap.id;
+                const data = docSnap.data();
+                const tasks = data.tasks || [];
+                
+                if (tasks.length > 0) {
+                    totalUsers++;
+                    totalTasks += tasks.length;
+                    
+                    // 從 task 中找出可能的主人 email (找第一個任務的收件人當代表)
+                    let guessEmail = '未知信箱 (' + uid.substring(0,6) + '...)';
+                    if (tasks[0].recipients && tasks[0].recipients.length > 0) {
+                        guessEmail = tasks[0].recipients[0];
+                    }
+
+                    html += `<div class="admin-user-card">`;
+                    html += `<h3 style="margin:0 0 10px 0; font-size:16px;">👤 ${guessEmail} <span class="badge" style="float:right;">${tasks.length} 個任務</span></h3>`;
+                    
+                    tasks.forEach((t, i) => {
+                        const typeMap = { 'interval': '即時', 'daily': '每天', 'weekly': '每週', 'monthly': '每月' };
+                        const ttype = (t.schedule && t.schedule.type) ? typeMap[t.schedule.type] : '每週';
+                        html += `<div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; margin-bottom:5px; font-size:13px;">`;
+                        html += `<strong>[${ttype}] ${t.task_name}</strong> - 關鍵字: ${(t.keywords||[]).join(', ')}`;
+                        html += `</div>`;
+                    });
+                    
+                    html += `</div>`;
+                }
+            });
+
+            document.getElementById('stat-users').innerText = totalUsers;
+            document.getElementById('stat-tasks').innerText = totalTasks;
+
+            if (html === '') {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted);">目前全站沒有任何任務。</div>';
+            } else {
+                container.innerHTML = html;
+            }
+            
+        } catch (e) {
+            container.innerHTML = `<div style="color:#ef4444;text-align:center;">讀取全站資料失敗：${e.message}</div>`;
+        }
+    }
 </script>
 
 </body>
