@@ -13,6 +13,11 @@ if hasattr(sys.stderr, 'reconfigure'):
 SCRIPT_DIR = Path(__file__).parent
 MAX_SCROLL_COUNT = 5
 
+from datetime import timezone, timedelta
+def get_now_taipei():
+    tz_taipei = timezone(timedelta(hours=8))
+    return datetime.now(tz_taipei)
+
 # ==========================================
 # Firebase 相關設定
 # ==========================================
@@ -121,7 +126,7 @@ def get_minutes_since_last_run(task_state):
         return None
     try:
         dt = datetime.fromisoformat(lrt)
-        return int((datetime.now() - dt).total_seconds() / 60)
+        return int((get_now_taipei() - dt).total_seconds() / 60)
     except:
         return None
 
@@ -141,7 +146,7 @@ async def scrape_task(task: dict):
         print(f"[-] 任務 {task_name} 沒有設定粉專，跳過。")
         return
 
-    now = datetime.now()
+    now = get_now_taipei()
     task_state = get_task_state(uid, task_name)
     mins = get_minutes_since_last_run(task_state)
     prev_seen = set(normalize_url(u) for u in task_state.get("seen_urls", []))
@@ -310,9 +315,7 @@ def run_github_cron(force_all=False):
     global db
     db = init_firebase()
     
-    from datetime import timezone, timedelta
-    tz_taipei = timezone(timedelta(hours=8))
-    now = datetime.now(tz_taipei)
+    now = get_now_taipei()
     current_day = now.weekday()
     current_hour = now.hour
     
