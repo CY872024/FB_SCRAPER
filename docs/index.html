@@ -3,391 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FB Scraper 控制台</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>FB Scraper SaaS 控制台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            --surface: rgba(30, 41, 59, 0.7);
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger: #ef4444;
-            --success: #22c55e;
+            --bg: #0f172a; --surface: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --text: #f8fafc; --text-muted: #94a3b8;
+            --danger: #ef4444; --success: #22c55e;
             --border: rgba(255, 255, 255, 0.1);
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
+            font-family: 'Inter', sans-serif; background: var(--bg);
             background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
                               radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            color: var(--text); margin: 0; padding: 20px; min-height: 100vh;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .container { max-width: 800px; margin: 0 auto; }
         h1 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            text-align: center; margin-bottom: 30px; font-weight: 800; letter-spacing: 1px;
             background: linear-gradient(90deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .card {
-            background: var(--surface);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .form-group {
-            margin-bottom: 15px;
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+        input[type="text"], input[type="password"], input[type="email"], input[type="time"] {
+            width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border);
+            color: var(--text); padding: 12px; border-radius: 8px; box-sizing: border-box; outline: none;
         }
-        label {
-            display: block;
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: var(--primary);
-        }
+        input:focus { border-color: var(--primary); }
         button {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            width: 100%; background: var(--primary); color: white; border: none; padding: 14px;
+            border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
-        button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button.danger {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            box-shadow: none;
-            margin-top: 10px;
-        }
-        button.success {
-            background: var(--success);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-        }
-        .task-list {
-            margin-top: 20px;
-        }
-        .task-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid var(--border);
-        }
-        .task-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-        }
-        .task-info p {
-            margin: 0;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        .badge {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            margin-right: 5px;
-        }
-        textarea {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 13px;
-            font-family: monospace;
-            min-height: 200px;
-            outline: none;
-            resize: vertical;
-        }
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .btn-sm { padding: 8px 12px; font-size: 14px; width: auto; }
+        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+        .btn-success { background: var(--success); }
         .hidden { display: none !important; }
-        .status-msg { margin-top: 15px; font-size: 14px; text-align: center; color: var(--success); }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary);
+            border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite;
+            display: inline-block; vertical-align: middle;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .status-msg { margin-top: 15px; text-align: center; font-size: 14px; }
+        .task-item {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative;
+        }
+        .task-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;}
+        .task-header h3 { margin: 0; color: #60a5fa; }
+        .badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; }
+        .days-checkboxes label { display: inline-block; margin-right: 10px; font-weight: 400; color: var(--text); }
+        textarea {
+            width: 100%; background: rgba(15,23,42,0.6); border: 1px solid var(--border); color: var(--text);
+            padding: 10px; border-radius: 8px; resize: vertical; min-height: 60px; font-family: inherit;
+        }
+        .page-entry { display: flex; gap: 10px; margin-bottom: 10px; }
+        .page-entry input { flex: 1; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🚀 FB Scraper Console</h1>
+    <h1>🚀 FB Scraper SaaS</h1>
 
-    <!-- 登入區塊 -->
-    <div id="login-section" class="card">
+    <!-- 登入與註冊區塊 -->
+    <div id="auth-section" class="card">
+        <h2 style="margin-top:0; text-align:center;">會員登入 / 註冊</h2>
         <div class="form-group">
-            <label>GitHub 使用者名稱 / 組織</label>
-            <input type="text" id="gh-owner" placeholder="例如: CY872024" value="CY872024">
+            <label>電子郵件</label>
+            <input type="email" id="email" placeholder="your@email.com">
         </div>
         <div class="form-group">
-            <label>儲存庫名稱 (Repository)</label>
-            <input type="text" id="gh-repo" placeholder="例如: FB_SCRAPER" value="FB_SCRAPER">
+            <label>密碼</label>
+            <input type="password" id="password" placeholder="••••••••">
         </div>
-        <div class="form-group">
-            <label>Personal Access Token (PAT)</label>
-            <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="handleLogin()">登入</button>
+            <button class="btn-success" onclick="handleRegister()">註冊新帳號</button>
         </div>
-        <button onclick="saveLogin()">連線至 GitHub</button>
+        <div id="auth-status" class="status-msg"></div>
     </div>
 
     <!-- 儀表板區塊 -->
     <div id="dashboard-section" class="hidden">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 18px;">排程任務列表</h2>
-                <button onclick="loadConfig()" style="width: auto; padding: 8px 15px; font-size: 12px;">重新整理</button>
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span style="color:var(--text-muted); font-size:14px;">目前登入：</span>
+                <strong id="user-email"></strong>
             </div>
-            <div id="task-list-container" class="task-list">
-                <div style="text-align: center;"><span class="loader"></span> 載入中...</div>
-            </div>
+            <button class="btn-sm btn-danger" onclick="handleLogout()">登出</button>
         </div>
 
-        <div class="card">
-            <h2 style="margin: 0 0 15px 0; font-size: 18px;">手動控制</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">強制雲端主機立刻啟動，無視排程時間執行所有任務並寄出信件。</p>
-            <button class="success" onclick="triggerAction()">🚀 立即強制執行</button>
-            <div id="action-status" class="status-msg"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+            <h2 style="margin:0;">我的排程任務</h2>
+            <button class="btn-sm btn-success" onclick="addNewTaskUI()">+ 新增任務</button>
         </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 18px;">進階設定 (JSON)</h2>
-            </div>
-            <textarea id="config-editor"></textarea>
-            <button onclick="saveConfig()" style="margin-top: 15px;">💾 儲存設定至 GitHub</button>
-            <div id="save-status" class="status-msg"></div>
-            <button class="danger" onclick="logout()">登出</button>
+        <div id="task-list">
+            <div style="text-align: center;"><span class="loader"></span> 載入中...</div>
         </div>
+        
+        <button onclick="saveAllTasksToFirestore()" style="margin-top: 20px; font-size:18px;">💾 儲存所有變更</button>
+        <div id="save-status" class="status-msg"></div>
     </div>
 </div>
 
-<script>
-    let currentConfigSha = null;
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
-    window.onload = () => {
-        if (localStorage.getItem('gh_token')) {
-            document.getElementById('login-section').classList.add('hidden');
+    // 填入使用者提供的 Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBqe1PbhiP2IGXqt7uD8mxCw5LXthtj7Yk",
+        authDomain: "fb-event-notifier.firebaseapp.com",
+        projectId: "fb-event-notifier",
+        storageBucket: "fb-event-notifier.firebasestorage.app",
+        messagingSenderId: "436849030228",
+        appId: "1:436849030228:web:b1ba859f288adfa034a9c1",
+        measurementId: "G-RLX0S6F7XM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentTasks = [];
+
+    const DAYS = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+
+    // Auth Listener
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
-            loadConfig();
+            document.getElementById('user-email').innerText = user.email;
+            loadUserData();
+        } else {
+            currentUser = null;
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+        }
+    });
+
+    window.handleLogin = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const status = document.getElementById('auth-status');
+        try {
+            status.innerHTML = '<span class="loader"></span> 登入中...';
+            status.style.color = '#3b82f6';
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (e) {
+            status.innerText = '登入失敗：' + e.message;
+            status.style.color = '#ef4444';
         }
     };
 
-    function saveLogin() {
-        const owner = document.getElementById('gh-owner').value.trim();
-        const repo = document.getElementById('gh-repo').value.trim();
-        const token = document.getElementById('gh-token').value.trim();
-        
-        if (!owner || !repo || !token) {
-            alert('請填寫完整資訊！');
-            return;
-        }
-        
-        localStorage.setItem('gh_owner', owner);
-        localStorage.setItem('gh_repo', repo);
-        localStorage.setItem('gh_token', token);
-        
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('dashboard-section').classList.remove('hidden');
-        loadConfig();
-    }
-
-    function logout() {
-        localStorage.clear();
-        document.getElementById('dashboard-section').classList.add('hidden');
-        document.getElementById('login-section').classList.remove('hidden');
-    }
-
-    async function githubRequest(method, path, body = null) {
-        const owner = localStorage.getItem('gh_owner');
-        const repo = localStorage.getItem('gh_repo');
-        const token = localStorage.getItem('gh_token');
-        
-        const url = path.startsWith('https') ? path : `https://api.github.com/repos/${owner}/${repo}${path}`;
-        const headers = {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-        };
-        
-        const config = { method, headers };
-        if (body) config.body = JSON.stringify(body);
-        
-        const res = await fetch(url, config);
-        if (!res.ok) {
-            if (res.status === 401 || res.status === 404) {
-                alert('驗證失敗或找不到儲存庫！請確認 Token 是否有效且包含 repo 權限。');
-                logout();
-            }
-            throw new Error(`GitHub API Error: ${res.status}`);
-        }
-        return res.status !== 204 ? await res.json() : null;
-    }
-
-    const DAYS = ['一', '二', '三', '四', '五', '六', '日'];
-
-    async function loadConfig() {
+    window.handleRegister = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const status = document.getElementById('auth-status');
         try {
-            document.getElementById('task-list-container').innerHTML = '<div style="text-align: center;"><span class="loader"></span> 載入中...</div>';
-            
-            const data = await githubRequest('GET', '/contents/config.json');
-            currentConfigSha = data.sha;
-            
-            const content = decodeURIComponent(escape(atob(data.content)));
-            document.getElementById('config-editor').value = content;
-            
-            const configObj = JSON.parse(content);
-            renderTasks(configObj.tasks || []);
+            status.innerHTML = '<span class="loader"></span> 註冊中...';
+            status.style.color = '#3b82f6';
+            await createUserWithEmailAndPassword(auth, email, password);
         } catch (e) {
-            document.getElementById('task-list-container').innerHTML = `<div style="color:#ef4444;text-align:center;">載入失敗，請確認設定檔存在。</div>`;
+            status.innerText = '註冊失敗：' + e.message;
+            status.style.color = '#ef4444';
+        }
+    };
+
+    window.handleLogout = () => signOut(auth);
+
+    async function loadUserData() {
+        const listDiv = document.getElementById('task-list');
+        try {
+            const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+            if (docSnap.exists()) {
+                currentTasks = docSnap.data().tasks || [];
+            } else {
+                currentTasks = [];
+            }
+            renderTasks();
+        } catch (e) {
+            listDiv.innerHTML = `<div style="color:#ef4444;text-align:center;">載入失敗：${e.message}</div>`;
         }
     }
 
-    function renderTasks(tasks) {
-        const container = document.getElementById('task-list-container');
-        container.innerHTML = '';
-        
-        if (tasks.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: #94a3b8;">目前沒有任務</div>';
+    function renderTasks() {
+        const listDiv = document.getElementById('task-list');
+        listDiv.innerHTML = '';
+        if (currentTasks.length === 0) {
+            listDiv.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding:20px;">尚無任務，請點擊右上角新增任務。</div>';
             return;
         }
 
-        tasks.forEach(t => {
-            const daysText = (t.schedule.days_of_week || []).map(d => '週' + DAYS[d]).join(', ');
-            const div = document.createElement('div');
-            div.className = 'task-item';
-            div.innerHTML = `
-                <div class="task-info">
-                    <h3>${t.task_name}</h3>
-                    <p>🕒 排程: ${daysText} ${t.schedule.time}</p>
-                    <p style="margin-top:5px;">
-                        <span class="badge">${t.pages ? t.pages.length : 0} 個粉專</span>
-                        <span class="badge">${t.keywords ? t.keywords.length : 0} 個關鍵字</span>
-                    </p>
+        currentTasks.forEach((task, index) => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task-item';
+            
+            let daysHtml = '';
+            for (let i = 0; i < 7; i++) {
+                const checked = (task.schedule?.days_of_week || []).includes(i) ? 'checked' : '';
+                daysHtml += `<label><input type="checkbox" class="task-days-${index}" value="${i}" ${checked}> ${DAYS[i]}</label>`;
+            }
+
+            let pagesHtml = '';
+            (task.pages || []).forEach(p => {
+                pagesHtml += `<div class="page-entry"><input type="text" class="p-name" placeholder="粉專名稱" value="${p.name}"><input type="text" class="p-url" placeholder="粉專網址" value="${p.url}"></div>`;
+            });
+
+            taskDiv.innerHTML = `
+                <div class="task-header">
+                    <h3><input type="text" id="t-name-${index}" value="${task.task_name || '未命名任務'}" style="background:transparent; border:none; color:#60a5fa; font-size:18px; font-weight:bold; padding:0; outline:none; border-bottom:1px dashed #60a5fa;"></h3>
+                    <button class="btn-sm btn-danger" onclick="removeTask(${index})">刪除任務</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>執行星期</label>
+                    <div class="days-checkboxes">${daysHtml}</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>執行時間 (HH:MM)</label>
+                    <input type="time" id="t-time-${index}" value="${task.schedule?.time || '12:00'}">
+                </div>
+
+                <div class="form-group">
+                    <label>收件人 (多筆請用逗號分隔)</label>
+                    <input type="text" id="t-recipients-${index}" value="${(task.recipients || []).join(', ')}" placeholder="email1@test.com, email2@test.com">
+                </div>
+
+                <div class="form-group">
+                    <label>監控關鍵字 (多筆請用逗號分隔)</label>
+                    <textarea id="t-keywords-${index}" placeholder="報名, 活動, 免費參加...">${(task.keywords || []).join(', ')}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>監控粉專列表</label>
+                    <div id="pages-container-${index}">${pagesHtml}</div>
+                    <button class="btn-sm" style="background:rgba(255,255,255,0.1); margin-top:10px;" onclick="addPageInput(${index})">+ 新增一個粉專</button>
                 </div>
             `;
-            container.appendChild(div);
+            listDiv.appendChild(taskDiv);
         });
     }
 
-    async function saveConfig() {
+    window.addNewTaskUI = () => {
+        currentTasks.push({
+            task_name: "新任務",
+            schedule: { days_of_week: [0,1,2,3,4,5,6], time: "09:00" },
+            recipients: [currentUser.email],
+            keywords: ["報名", "活動"],
+            pages: [{ name: "", url: "" }]
+        });
+        renderTasks();
+    };
+
+    window.removeTask = (index) => {
+        if(confirm('確定要刪除這個任務嗎？')) {
+            currentTasks.splice(index, 1);
+            renderTasks();
+        }
+    };
+
+    window.addPageInput = (index) => {
+        const container = document.getElementById(`pages-container-${index}`);
+        const div = document.createElement('div');
+        div.className = 'page-entry';
+        div.innerHTML = `<input type="text" class="p-name" placeholder="粉專名稱"><input type="text" class="p-url" placeholder="粉專網址">`;
+        container.appendChild(div);
+    };
+
+    window.saveAllTasksToFirestore = async () => {
         const status = document.getElementById('save-status');
-        const content = document.getElementById('config-editor').value;
         
-        try {
-            JSON.parse(content); // Validate JSON
-        } catch (e) {
-            status.style.color = '#ef4444';
-            status.innerText = '儲存失敗：JSON 格式不正確！';
-            return;
+        // 從 UI 收集所有資料
+        const newTasks = [];
+        for (let i = 0; i < currentTasks.length; i++) {
+            if(!document.getElementById(`t-name-${i}`)) continue; // 可能被刪除但尚未 re-render
+
+            const name = document.getElementById(`t-name-${i}`).value.trim();
+            const time = document.getElementById(`t-time-${i}`).value;
+            
+            const daysNode = document.querySelectorAll(`.task-days-${i}:checked`);
+            const days_of_week = Array.from(daysNode).map(cb => parseInt(cb.value));
+
+            const recptRaw = document.getElementById(`t-recipients-${i}`).value;
+            const recipients = recptRaw.split(',').map(s => s.trim()).filter(s => s);
+
+            const kwRaw = document.getElementById(`t-keywords-${i}`).value;
+            const keywords = kwRaw.split(',').map(s => s.trim()).filter(s => s);
+
+            const pagesNode = document.getElementById(`pages-container-${i}`).querySelectorAll('.page-entry');
+            const pages = [];
+            pagesNode.forEach(pNode => {
+                const pName = pNode.querySelector('.p-name').value.trim();
+                const pUrl = pNode.querySelector('.p-url').value.trim();
+                if (pName && pUrl) pages.push({ name: pName, url: pUrl });
+            });
+
+            newTasks.push({
+                task_name: name,
+                schedule: { days_of_week, time },
+                recipients, keywords, pages
+            });
         }
 
         try {
+            status.innerHTML = '<span class="loader"></span> 儲存中...';
             status.style.color = '#3b82f6';
-            status.innerText = '儲存中...';
             
-            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+            await setDoc(doc(db, "users", currentUser.uid), { tasks: newTasks }, { merge: true });
             
-            const res = await githubRequest('PUT', '/contents/config.json', {
-                message: 'Update config via Web App',
-                content: encodedContent,
-                sha: currentConfigSha
-            });
-            
-            currentConfigSha = res.content.sha;
-            status.style.color = '#22c55e';
-            status.innerText = '✅ 設定檔已成功儲存至 GitHub！';
-            
-            // Reload UI
-            renderTasks(JSON.parse(content).tasks || []);
-            
-            setTimeout(() => { status.innerText = ''; }, 3000);
-        } catch (e) {
-            status.style.color = '#ef4444';
-            status.innerText = '儲存失敗，請重試。';
-        }
-    }
-
-    async function triggerAction() {
-        const status = document.getElementById('action-status');
-        if (!confirm('這將會立即觸發雲端主機啟動所有爬蟲任務，確定要執行嗎？')) return;
-        
-        try {
-            status.style.color = '#3b82f6';
-            status.innerText = '正在呼叫主機...';
-            
-            await githubRequest('POST', '/actions/workflows/scraper.yml/dispatches', {
-                ref: 'main',
-                inputs: { run_all: 'true' }
-            });
+            currentTasks = newTasks; // 更新記憶體狀態
+            renderTasks(); // 重新渲染清理空白粉專框
             
             status.style.color = '#22c55e';
-            status.innerText = '✅ 指令已發送！雲端主機即將啟動 (約需等待 1-2 分鐘)。';
+            status.innerText = '✅ 所有設定已成功儲存！雲端爬蟲將在設定時間自動為您抓取。';
+            setTimeout(() => { status.innerText = ''; }, 4000);
         } catch (e) {
             status.style.color = '#ef4444';
-            status.innerText = '觸發失敗，請確認 Action 是否已存在且 Token 權限正確。';
+            status.innerText = '儲存失敗：' + e.message;
         }
-    }
+    };
 </script>
 
 </body>
