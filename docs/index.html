@@ -194,7 +194,7 @@
     const DAYS = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
 
     // Auth Listener
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
             document.getElementById('auth-section').classList.add('hidden');
@@ -209,8 +209,8 @@
                 document.getElementById('btn-admin').classList.add('hidden');
             }
             
-            // 確保資料庫有這個使用者的記錄 (供後台統計)
-            setDoc(doc(db, "users", user.uid), { 
+            // 確保資料庫有這個使用者的記錄 (加上 await 防止 Firebase 本機快取覆蓋遠端資料)
+            await setDoc(doc(db, "users", user.uid), { 
                 email: user.email, 
                 last_login: new Date().toISOString() 
             }, { merge: true });
