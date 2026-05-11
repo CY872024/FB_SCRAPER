@@ -3,7 +3,7 @@
         "enabled": true,
         "smtp_host": "smtp.gmail.com",
         "smtp_port": 587,
-        "sender": "chiyuanli@gmail.com"
+        "sender": "lcy872024@gmail.com"
     },
     "tasks": [
         {
