@@ -49,7 +49,7 @@ def get_all_users_tasks():
 def get_task_state(uid, task_name):
     doc_ref = db.collection('states').document(uid)
     doc = doc_ref.get()
-    if doc.exists():
+    if doc.exists:
         return doc.to_dict().get(task_name, {})
     return {}
 
