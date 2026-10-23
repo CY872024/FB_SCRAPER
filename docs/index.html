@@ -209,13 +209,18 @@
                 document.getElementById('btn-admin').classList.add('hidden');
             }
             
-            // 確保資料庫有這個使用者的記錄 (加上 await 防止 Firebase 本機快取覆蓋遠端資料)
-            await setDoc(doc(db, "users", user.uid), { 
-                email: user.email, 
-                last_login: new Date().toISOString() 
-            }, { merge: true });
-            
-            loadUserData();
+            // 更新登入資訊失敗時仍繼續載入任務，避免畫面永久停在「載入中」。
+            // 常見原因是 Firestore Security Rules 不允許寫入 last_login。
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    last_login: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.warn("無法更新使用者登入資訊：", e);
+            }
+
+            await loadUserData();
         } else {
             currentUser = null;
             document.getElementById('auth-section').classList.remove('hidden');
